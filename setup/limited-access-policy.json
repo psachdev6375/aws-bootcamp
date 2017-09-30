@@ -107,7 +107,7 @@
                 "rds:RestoreDBInstanceToPointInTime"
             ],
             "Resource": [
-                "arn:aws:rds:ap-south-1:422000372753:*"
+                "arn:aws:rds:ap-south-1:<ACCOUNT_ID>:*"
             ]
         },
         {
