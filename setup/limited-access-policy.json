@@ -66,7 +66,7 @@
             }
         },
         {
-            "Sid": "OnlyAllowInstancesWithawslearntag",
+            "Sid": "OnlyAllowCertainInstanceTypesToBeCreated1",
             "Effect": "Deny",
             "Action": [
                 "ec2:RunInstances",
@@ -83,8 +83,11 @@
             }
         },
         {
-            "Sid": "AllowS3Everywhere",
-            "Action": "s3:*",
+            "Sid": "AllowS3andSNSEverywhere",
+            "Action": [
+                "s3:*",
+                "sns:*"
+            ],
             "Effect": "Allow",
             "Resource": "*"
         },
@@ -124,17 +127,10 @@
             }
         },
         {
-            "Sid": "AllowCloudFormationInMumbai",
+            "Sid": "AllowCloudFormation",
             "Action": "cloudformation:*",
             "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "ec2:Region": [
-                        "ap-south-1"
-                    ]
-                }
-            }
+            "Resource": "*"
         },
         {
             "Sid": "AllowIAMLimitedElements",

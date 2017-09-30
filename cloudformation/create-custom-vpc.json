@@ -1,0 +1,163 @@
+{
+    "Resources": {
+    	"VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true", 
+                "InstanceTenancy": "default",
+                "Tags": [{
+                	"Key" : "Name", "Value" : "VPCPuneet"
+                }]
+            }
+        },
+        "InternetGateway": {
+        	"Type": "AWS::EC2::InternetGateway", 
+        	"Properties": {
+        		"Tags": [{
+        			"Key" : "Name", "Value" : "VPCPuneetInternetGateway"
+        		}]
+        	}
+        },
+        "InternetGatewayAttachment": {
+        	"Type": "AWS::EC2::VPCGatewayAttachment",
+        	"Properties": {
+        		"VpcId": { "Ref" : "VPC" }, 
+        		"InternetGatewayId": { "Ref" : "InternetGateway"}
+        	}
+        },
+        "PublicSubnet1a": {
+        	"Type": "AWS::EC2::Subnet",
+        	"Properties": {
+        		"AvailabilityZone": "ap-south-1a",
+        		"VpcId": { "Ref" : "VPC" }, 
+        		"CidrBlock": "10.0.1.0/24",
+        		"MapPublicIpOnLaunch": "true",
+        		"Tags" :[{
+        			"Key" : "Name", "Value" : "Public-1A-10.0.1.0"
+        		}]
+        	} 
+        },
+        "PublicSubnet1b": {
+        	"Type": "AWS::EC2::Subnet",
+        	"Properties": {
+        		"AvailabilityZone": "ap-south-1b",
+        		"VpcId": { "Ref" : "VPC" }, 
+        		"CidrBlock": "10.0.2.0/24",
+        		"MapPublicIpOnLaunch": "true",
+        		"Tags" :[{
+        			"Key" : "Name", "Value" : "Public-1B-10.0.2.0"
+        		}]
+        	} 
+        },
+        "PrivateSubnet1a": {
+        	"Type": "AWS::EC2::Subnet",
+        	"Properties": {
+        		"AvailabilityZone": "ap-south-1a",
+        		"VpcId": { "Ref" : "VPC" }, 
+        		"CidrBlock": "10.0.3.0/24",
+        		"MapPublicIpOnLaunch": "false",
+        		"Tags" :[{
+        			"Key" : "Name", "Value" : "Private-1A-10.0.3.0"
+        		}]
+        	} 
+        },
+        "PrivateSubnet1b": {
+        	"Type": "AWS::EC2::Subnet",
+        	"Properties": {
+        		"AvailabilityZone": "ap-south-1b",
+        		"VpcId": { "Ref" : "VPC" }, 
+        		"CidrBlock": "10.0.4.0/24",
+        		"MapPublicIpOnLaunch": "false",
+        		"Tags" :[{
+        			"Key" : "Name", "Value" : "Private-1B-10.0.4.0"
+        		}]
+        	} 
+        },
+        "RouteTable": {
+        	"Type": "AWS::EC2::RouteTable",
+        	"Properties": {
+        		"VpcId": { "Ref" : "VPC" }, 
+        		"Tags" :[{
+        			"Key" : "Name", "Value" : "PuneetVPCPublicRoute"
+        		}]
+        	}
+        },
+        "InternetRoute": {
+        	"Type": "AWS::EC2::Route",
+        	"DependsOn": "InternetGateway",
+        	"Properties": {
+        		"DestinationCidrBlock": "0.0.0.0/0",
+        		"GatewayId": { "Ref" : "InternetGateway" }, 
+        		"RouteTableId": { "Ref" : "RouteTable" }
+        	}
+        },
+        "SubnetPublicRouteAssociation1A": {
+        	"Type": "AWS::EC2::SubnetRouteTableAssociation", 
+        	"Properties": {
+        		"RouteTableId": { "Ref": "RouteTable" },
+        		"SubnetId": { "Ref": "PublicSubnet1a" }
+        	}
+        },
+        "SubnetPublicRouteAssociation1B": {
+        	"Type": "AWS::EC2::SubnetRouteTableAssociation", 
+        	"Properties": {
+        		"RouteTableId": { "Ref": "RouteTable" },
+        		"SubnetId": { "Ref": "PublicSubnet1b" }
+        	}
+        },
+        "SecurityGroupWebDMZ": {
+        	"Type": "AWS::EC2::SecurityGroup", 
+        	"Properties": {
+        		"GroupName": "WebDMZ-SG",
+        		"GroupDescription": "Security Group for servers in the Web DMZ. SSH, HTTP, HTTPS allowed in",
+        		"VpcId": { "Ref": "VPC"},
+        		"Tags": [{
+        			"Key" : "Name", "Value" : "WebDMZ-SG-PuneetVPC"
+        		}],
+        		"SecurityGroupIngress": [{
+        			"IpProtocol": "tcp",
+        			"FromPort": "80", 
+        			"ToPort": "80", 
+        			"CidrIp": "0.0.0.0/0"
+        		},
+        		{
+        			"IpProtocol": "tcp",
+        			"FromPort": "443", 
+        			"ToPort": "443", 
+        			"CidrIp": "0.0.0.0/0"
+        		},
+        		{
+        			"IpProtocol": "tcp",
+        			"FromPort": "22", 
+        			"ToPort": "22", 
+        			"CidrIp": "0.0.0.0/0"
+        		}]
+        	}
+        },
+        "SecurityGroupMySQL": {
+        	"Type": "AWS::EC2::SecurityGroup", 
+        	"Properties": {
+        		"GroupName": "RDS-MySQL-SG",
+        		"GroupDescription": "Security Group for MySQL servers in the Private Subnet. Only ports 22 and 3306 allowed in from public SG",
+        		"VpcId": { "Ref": "VPC" },
+        		"Tags": [{
+        			"Key" : "Name", "Value" : "MySQL-Private-SG-PuneetVPC"
+        		}],
+        		"SecurityGroupIngress": [{
+        			"IpProtocol": "tcp",
+        			"FromPort": "3306", 
+        			"ToPort": "3306", 
+        			"SourceSecurityGroupId": { "Ref": "SecurityGroupWebDMZ" }
+        		},
+        		{
+        			"IpProtocol": "tcp",
+        			"FromPort": "22", 
+        			"ToPort": "22", 
+        			"SourceSecurityGroupId": { "Ref": "SecurityGroupWebDMZ" }
+        		}]
+        	}
+        }
+    }
+}
