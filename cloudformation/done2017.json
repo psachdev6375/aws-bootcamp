@@ -195,6 +195,12 @@
                 },
                 {
                     "IpProtocol": "tcp",
+                    "FromPort": "8080", 
+                    "ToPort": "8080", 
+                    "CidrIp": "0.0.0.0/0"
+                },
+                {
+                    "IpProtocol": "tcp",
                     "FromPort": "22", 
                     "ToPort": "22", 
                     "CidrIp": "0.0.0.0/0"
@@ -268,6 +274,21 @@
                                 "echo export RDS_DB=",
                                 { "Ref" : "DBName" },
                                 ">> /etc/profile\n",
+                                "export RDS_HOST=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]},
+                                "\n",
+                                "export RDS_PORT=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]},
+                                "\n",
+                                "export RDS_USER=",
+                                { "Ref" : "DBUser" },
+                                "\n",
+                                "export RDS_PASSWORD=",
+                                { "Ref" : "DBPassword" },
+                                "\n",
+                                "export RDS_DB=",
+                                { "Ref" : "DBName" },
+                                "\n",
                                 "nohup java -jar /home/ec2-user/devcapsule/services/target/devcapsule-spring-1.0.jar > /home/ec2-user/devcapsule.log &\n"
                             ]
                         ]
@@ -277,6 +298,9 @@
                 "SubnetId" : { "Ref" : "PublicSubnet1a" },
                 "InstanceType" : "t2.micro",
                 "Tags" :[
+                    {
+                    "Key" : "Name", "Value" : "Done2017"
+                    },
                     {
                     "Key" : "purpose", "Value" : "awslearn"
                     }
@@ -310,6 +334,21 @@
                                 "echo export RDS_DB=",
                                 { "Ref" : "DBName" },
                                 ">> /etc/profile\n",
+                                "export RDS_HOST=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]},
+                                "\n",
+                                "export RDS_PORT=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]},
+                                "\n",
+                                "export RDS_USER=",
+                                { "Ref" : "DBUser" },
+                                "\n",
+                                "export RDS_PASSWORD=",
+                                { "Ref" : "DBPassword" },
+                                "\n",
+                                "export RDS_DB=",
+                                { "Ref" : "DBName" },
+                                "\n",
                                 "nohup java -jar /home/ec2-user/devcapsule/services/target/devcapsule-spring-1.0.jar > /home/ec2-user/devcapsule.log &\n"
                             ]
                         ]
@@ -319,6 +358,9 @@
                 "SubnetId" : { "Ref" : "PublicSubnet1b" },
                 "InstanceType" : "t2.micro",
                 "Tags" :[
+                    {
+                    "Key" : "Name", "Value" : "Done2017"
+                    },
                     {
                     "Key" : "purpose", "Value" : "awslearn"
                     }
@@ -332,14 +374,14 @@
                 "Subnets": [{"Ref": "PublicSubnet1a"},{"Ref": "PublicSubnet1b"}],
                 "Listeners" : [ {
                   "LoadBalancerPort" : "80",
-                  "InstancePort" : "80",
+                  "InstancePort" : "8080",
                   "Protocol" : "HTTP"
                 } ],
                 "SecurityGroups" : [ { "Ref" : "SecurityGroupWebDMZ" } ],
                 "Instances" : [ { "Ref" : "DoneServer1A" },{ "Ref" : "DoneServer1B" } ],
                 "HealthCheck" : {
                   "Target" : {
-                    "Fn::Join" : [ "", [ "HTTP:", 80, "/healthy.html" ] ]
+                    "Fn::Join" : [ "", [ "HTTP:", 8080, "/swagger-ui.html" ] ]
                   },
                   "HealthyThreshold" : "2",
                   "UnhealthyThreshold" : "2",
