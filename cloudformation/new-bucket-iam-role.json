@@ -1,0 +1,72 @@
+{
+    "Resources": {
+        "PuneetBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "PublicReadWrite"
+            }
+        },
+        "S3AccessRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [ "ec2.amazonaws.com" ]
+                        },
+                        "Action": [ "sts:AssumeRole" ]
+                    }]
+                },
+                "Path": "/",
+                "ManagedPolicyArns": [ "arn:aws:iam::aws:policy/AmazonS3FullAccess" ]
+            }
+        },
+        "S3AccessInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [ {
+                    "Ref": "S3AccessRole"
+                    } ]
+            }
+        }
+    },
+    "Outputs": {
+        "InstanceProfileARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "S3AccessInstanceProfile",
+                    "Arn"
+                ]
+            },
+            "Description": "ARN Of the new instance profile created"
+            },
+        "BucketARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "PuneetBucket",
+                    "Arn"
+                ]
+            },
+            "Description": "Arn of the newly created bucket"
+        },
+        "BucketDomainName": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "PuneetBucket",
+                    "DomainName"
+                ]
+            },
+            "Description": "Domain Name of the newly created bucket"
+        },
+        "BucketWebsiteURL": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "PuneetBucket",
+                    "WebsiteURL"
+                ]
+            },
+            "Description": "WebsiteURL of the newly created bucket"
+        }
+    }
+}
