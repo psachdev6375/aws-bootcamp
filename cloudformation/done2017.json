@@ -267,7 +267,8 @@
                                 ">> /etc/profile\n",
                                 "echo export RDS_DB=",
                                 { "Ref" : "DBName" },
-                                ">> /etc/profile\n"
+                                ">> /etc/profile\n",
+                                "nohup java -jar /home/ec2-user/devcapsule/services/target/devcapsule-spring-1.0.jar > /home/ec2-user/devcapsule.log &\n"
                             ]
                         ]
                     }
@@ -308,7 +309,8 @@
                                 ">> /etc/profile\n",
                                 "echo export RDS_DB=",
                                 { "Ref" : "DBName" },
-                                ">> /etc/profile\n"
+                                ">> /etc/profile\n",
+                                "nohup java -jar /home/ec2-user/devcapsule/services/target/devcapsule-spring-1.0.jar > /home/ec2-user/devcapsule.log &\n"
                             ]
                         ]
                     }
