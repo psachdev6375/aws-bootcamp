@@ -247,6 +247,31 @@
             "Properties": {
                 "ImageId" : "ami-2daeef42",
                 "KeyName" : "puneetsachdev",
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": ["", [
+                                "#!/bin/bash -xe\n",
+                                "yum install -y aws-cfn-bootstrap\n",
+                                "# Set environment variables\n",
+                                "echo export RDS_HOST=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]},
+                                ">> /etc/profile\n",
+                                "echo export RDS_PORT=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]},
+                                ">> /etc/profile\n",
+                                "echo export RDS_USER=",
+                                { "Ref" : "DBUser" },
+                                ">> /etc/profile\n",
+                                "echo export RDS_PASSWORD=",
+                                { "Ref" : "DBPassword" },
+                                ">> /etc/profile\n",
+                                "echo export RDS_DB=",
+                                { "Ref" : "DBName" },
+                                ">> /etc/profile\n"
+                            ]
+                        ]
+                    }
+                },
                 "SecurityGroupIds" : [{ "Ref" : "SecurityGroupWebDMZ" }],
                 "SubnetId" : { "Ref" : "PublicSubnet1a" },
                 "InstanceType" : "t2.micro",
@@ -263,6 +288,31 @@
             "Properties": {
                 "ImageId" : "ami-2daeef42",
                 "KeyName" : "puneetsachdev",
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": ["", [
+                                "#!/bin/bash -xe\n",
+                                "yum install -y aws-cfn-bootstrap\n",
+                                "# Set environment variables\n",
+                                "echo export RDS_HOST=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]},
+                                ">> /etc/profile\n",
+                                "echo export RDS_PORT=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]},
+                                ">> /etc/profile\n",
+                                "echo export RDS_USER=",
+                                { "Ref" : "DBUser" },
+                                ">> /etc/profile\n",
+                                "echo export RDS_PASSWORD=",
+                                { "Ref" : "DBPassword" },
+                                ">> /etc/profile\n",
+                                "echo export RDS_DB=",
+                                { "Ref" : "DBName" },
+                                ">> /etc/profile\n"
+                            ]
+                        ]
+                    }
+                },
                 "SecurityGroupIds" : [{ "Ref" : "SecurityGroupWebDMZ" }],
                 "SubnetId" : { "Ref" : "PublicSubnet1b" },
                 "InstanceType" : "t2.micro",
