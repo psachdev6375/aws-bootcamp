@@ -252,9 +252,6 @@
                 "InstanceType" : "t2.micro",
                 "Tags" :[
                     {
-                    "Key" : "Name", "Value" : "Done2017"
-                    },
-                    {
                     "Key" : "purpose", "Value" : "awslearn"
                     }
                 ]
@@ -270,9 +267,6 @@
                 "SubnetId" : { "Ref" : "PublicSubnet1b" },
                 "InstanceType" : "t2.micro",
                 "Tags" :[
-                    {
-                    "Key" : "Name", "Value" : "Done2017"
-                    },
                     {
                     "Key" : "purpose", "Value" : "awslearn"
                     }
