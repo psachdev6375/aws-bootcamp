@@ -395,7 +395,7 @@
     },
     "Outputs" : {
         "WebsiteURL" : {
-          "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}, "/" ]]},
+          "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}, "/swagger-ui.html" ]]},
           "Description" : "Done service url"
         },
         "DBEndpoint" : {
