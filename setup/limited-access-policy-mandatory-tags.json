@@ -89,7 +89,8 @@
                 "sns:*",
                 "rds:*",
                 "cloudformation:*",
-                "vpc:*"
+                "vpc:*",
+                "elasticloadbalancing:*"
             ],
             "Effect": "Allow",
             "Resource": "*"
