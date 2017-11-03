@@ -73,7 +73,9 @@
                 "rds:*",
                 "cloudformation:*",
                 "vpc:*",
-                "elasticloadbalancing:*"
+                "elasticloadbalancing:*",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:GetMetricStatistics"
             ],
             "Effect": "Allow",
             "Resource": "*"
