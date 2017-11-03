@@ -251,7 +251,7 @@
             "Type" : "AWS::EC2::Instance",
             "DependsOn": "DBInstance",
             "Properties": {
-                "ImageId" : "ami-2daeef42",
+                "ImageId" : "ami-94d598fb",
                 "KeyName" : "puneetsachdev",
                 "UserData": {
                     "Fn::Base64": {
@@ -311,7 +311,7 @@
             "Type" : "AWS::EC2::Instance",
             "DependsOn": "DBInstance",
             "Properties": {
-                "ImageId" : "ami-2daeef42",
+                "ImageId" : "ami-94d598fb",
                 "KeyName" : "puneetsachdev",
                 "UserData": {
                     "Fn::Base64": {
