@@ -6,6 +6,7 @@
             "Description" : "AMI to use. You must have this AMI in your region",
             "Type" : "String",
             "Default" : "ami-94d598fb",
+            "AllowedPattern" : "ami-[a-z0-9]+",
             "ConstraintDescription" : "Must enter a valid AMI"
         },
         "InstanceType" : {
