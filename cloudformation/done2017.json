@@ -2,6 +2,12 @@
     "AWSTemplateFormatVersion" : "2010-09-09",
     "Description" : "This AWS CloudFormation Template installs a highly-available, scalable DONE2017 deployment using a multi-az Amazon RDS database instance for storage. **WARNING** This template creates an Amazon EC2 instance, an Application Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "Parameters" : {
+        "DoneAMIID" : {
+            "Description" : "AMI to use. You must have this AMI in your region",
+            "Type" : "String",
+            "Default" : "ami-94d598fb",
+            "ConstraintDescription" : "Must enter a valid AMI"
+        },
         "InstanceType" : {
             "Description" : "WebServer EC2 instance type",
             "Type" : "String",
@@ -271,7 +277,7 @@
             "Type" : "AWS::EC2::Instance",
             "DependsOn": "DBInstance",
             "Properties": {
-                "ImageId" : "ami-94d598fb",
+                "ImageId" : {"Ref": "DoneAMIID"},
                 "KeyName" : "puneetsachdev",
                 "UserData": {
                     "Fn::Base64": {
@@ -331,7 +337,7 @@
             "Type" : "AWS::EC2::Instance",
             "DependsOn": "DBInstance",
             "Properties": {
-                "ImageId" : "ami-94d598fb",
+                "ImageId" : {"Ref": "DoneAMIID"},
                 "KeyName" : "puneetsachdev",
                 "UserData": {
                     "Fn::Base64": {
