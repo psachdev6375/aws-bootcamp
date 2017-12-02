@@ -9,6 +9,13 @@
             "AllowedPattern" : "ami-[a-z0-9]+",
             "ConstraintDescription" : "Must enter a valid AMI"
         },
+        "KeyPairName" : {
+            "Description" : "Name of the key pair to use",
+            "Type" : "String",
+            "Default" : "puneetsachdev",
+            "AllowedPattern" : ".+",
+            "ConstraintDescription" : "Valid key pair name must be entered"
+        },
         "InstanceType" : {
             "Description" : "WebServer EC2 instance type",
             "Type" : "String",
@@ -279,7 +286,7 @@
             "DependsOn": "DBInstance",
             "Properties": {
                 "ImageId" : {"Ref": "DoneAMIID"},
-                "KeyName" : "puneetsachdev",
+                "KeyName" : {"Ref": "KeyPairName"},
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": ["", [
@@ -339,7 +346,7 @@
             "DependsOn": "DBInstance",
             "Properties": {
                 "ImageId" : {"Ref": "DoneAMIID"},
-                "KeyName" : "puneetsachdev",
+                "KeyName" : {"Ref": "KeyPairName"},
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": ["", [
