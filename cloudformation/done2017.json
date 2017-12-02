@@ -95,7 +95,9 @@
         "PublicSubnet1a": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "AvailabilityZone": "ap-south-1a",
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "a" ]]
+                },
                 "VpcId": { "Ref" : "VPC" }, 
                 "CidrBlock": "10.0.1.0/24",
                 "MapPublicIpOnLaunch": "true",
@@ -107,7 +109,9 @@
         "PublicSubnet1b": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "AvailabilityZone": "ap-south-1b",
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "b" ]]
+                },
                 "VpcId": { "Ref" : "VPC" }, 
                 "CidrBlock": "10.0.2.0/24",
                 "MapPublicIpOnLaunch": "true",
@@ -119,7 +123,9 @@
         "PrivateSubnet1a": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "AvailabilityZone": "ap-south-1a",
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "a" ]]
+                }, 
                 "VpcId": { "Ref" : "VPC" }, 
                 "CidrBlock": "10.0.3.0/24",
                 "MapPublicIpOnLaunch": "false",
@@ -131,7 +137,9 @@
         "PrivateSubnet1b": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
-                "AvailabilityZone": "ap-south-1b",
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "b" ]]
+                },
                 "VpcId": { "Ref" : "VPC" }, 
                 "CidrBlock": "10.0.4.0/24",
                 "MapPublicIpOnLaunch": "false",
