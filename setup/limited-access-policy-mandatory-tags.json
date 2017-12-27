@@ -2,27 +2,77 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "AllowEC2InMumbaiOnly",
+            "Sid": "AllowEC2OnlyInMumbai",
             "Effect": "Allow",
-            "Action": [
-                "ec2:*"
-            ],
+            "Action": "ec2:*",
             "Resource": "*",
             "Condition": {
                 "StringEquals": {
-                    "ec2:Region": [
-                        "ap-south-1"
-                    ]
+                    "ec2:Region": "ap-south-1"
                 }
             }
         },
         {
-            "Sid": "OnlyAllowCertainInstanceTypesToBeCreated",
-            "Effect": "Deny",
+            "Sid": "AllowTypicalUsageServices",
+            "Effect": "Allow",
             "Action": [
-                "ec2:RunInstances"
+                "iam:CreateInstanceProfile",
+                "rds:*",
+                "iam:ListServerCertificates",
+                "iam:ListPoliciesGrantingServiceAccess",
+                "iam:ListMFADevices",
+                "iam:ListSigningCertificates",
+                "iam:ListVirtualMFADevices",
+                "iam:AddRoleToInstanceProfile",
+                "iam:ListInstanceProfilesForRole",
+                "iam:PassRole",
+                "iam:ListSSHPublicKeys",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListAttachedUserPolicies",
+                "iam:ListAttachedGroupPolicies",
+                "iam:ListRolePolicies",
+                "iam:ChangePassword",
+                "iam:ListAccessKeys",
+                "iam:ListPolicies",
+                "iam:DeleteInstanceProfile",
+                "sns:*",
+                "iam:GetInstanceProfile",
+                "iam:ListSAMLProviders",
+                "s3:*",
+                "iam:ListGroupPolicies",
+                "iam:ListEntitiesForPolicy",
+                "iam:ListRoles",
+                "cloudformation:*",
+                "elasticloadbalancing:*",
+                "iam:ListUserPolicies",
+                "iam:ListInstanceProfiles",
+                "cloudwatch:GetMetricStatistics",
+                "iam:ListPolicyVersions",
+                "iam:ListOpenIDConnectProviders",
+                "iam:ListGroupsForUser",
+                "cloudwatch:DescribeAlarms",
+                "iam:ListAccountAliases",
+                "iam:ListUsers",
+                "iam:ListGroups",
+                "iam:GetAccountSummary"
             ],
-            "Resource": "arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:instance/*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "DenyAllExceptt2Micro",
+            "Effect": "Deny",
+            "Action": "ec2:RunInstances",
+            "Resource": [
+                "arn:aws:ec2:*:*:subnet/*",
+                "arn:aws:ec2:*:*:key-pair/*",
+                "arn:aws:ec2:ap-south-1:<ACCOUNT-ID>:instance/*",
+                "arn:aws:ec2:*::snapshot/*",
+                "arn:aws:ec2:*:*:volume/*",
+                "arn:aws:ec2:*:*:security-group/*",
+                "arn:aws:ec2:*:*:placement-group/*",
+                "arn:aws:ec2:*:*:network-interface/*",
+                "arn:aws:ec2:*::image/*"
+            ],
             "Condition": {
                 "StringEquals": {
                     "ec2:InstanceType": [
@@ -65,16 +115,23 @@
                 }
             }
         },
-		{
-            "Sid": "MandatoryTagOnEC2Instances",
+        {
+            "Sid": "DenyAllExceptt2MicroWithTags",
             "Effect": "Deny",
             "Action": [
                 "ec2:RunInstances",
                 "ec2:CreateVolume"
             ],
             "Resource": [
-                "arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:instance/*",
-                "arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:volume/*"
+                "arn:aws:ec2:*:*:subnet/*",
+                "arn:aws:ec2:*:*:key-pair/*",
+                "arn:aws:ec2:ap-south-1:<ACCOUNT-ID>:instance/*",
+                "arn:aws:ec2:*::snapshot/*",
+                "arn:aws:ec2:*:*:security-group/*",
+                "arn:aws:ec2:ap-south-1:<ACCOUNT-ID>:volume/*",
+                "arn:aws:ec2:*:*:placement-group/*",
+                "arn:aws:ec2:*:*:network-interface/*",
+                "arn:aws:ec2:*::image/*"
             ],
             "Condition": {
                 "StringNotEquals": {
@@ -83,79 +140,22 @@
             }
         },
         {
-            "Sid": "AllowOtherServices",
-            "Action": [
-                "s3:*",
-                "sns:*",
-                "rds:*",
-                "cloudformation:*",
-                "elasticloadbalancing:*",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:GetMetricStatistics"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Sid": "AllowRDSOnlyMySQLAndT2Micro",
+            "Sid": "DenyAllExceptt2MicroAndSingleAZ",
             "Effect": "Deny",
             "Action": "rds:CreateDBInstance",
             "Resource": "*",
             "Condition": {
-                "StringNotEquals": {
-                    "rds:DatabaseEngine": "mysql",
-                    "rds:DatabaseClass": [
-                        "db.t2.micro"
-                    ]
-                },
-                "Bool": {
-                    "rds:MultiAz": true
-                },
                 "NumericNotEquals": {
                     "rds:Piops": "1"
+                },
+                "Bool": {
+                    "rds:MultiAz": "true"
+                },
+                "StringNotEquals": {
+                    "rds:DatabaseClass": "db.t2.micro",
+                    "rds:DatabaseEngine": "mysql"
                 }
             }
-        },
-        {
-            "Sid": "AllowIAMLimitedElements",
-            "Effect": "Allow",
-            "Action": [
-                "iam:AddRoleToInstanceProfile",
-                "iam:PassRole",
-                "iam:GetAccountSummary",
-                "iam:ChangePassword",
-                "iam:CreateInstanceProfile",
-                "iam:DeleteInstanceProfile",
-                "iam:GetInstanceProfile",
-                "iam:ListAccessKeys",
-                "iam:ListAccountAliases",
-                "iam:ListAttachedGroupPolicies",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListAttachedUserPolicies",
-                "iam:ListEntitiesForPolicy",
-                "iam:ListGroupPolicies",
-                "iam:ListGroups",
-                "iam:ListGroupsForUser",
-                "iam:ListInstanceProfiles",
-                "iam:ListInstanceProfilesForRole",
-                "iam:ListMFADevices",
-                "iam:ListOpenIDConnectProviders",
-                "iam:ListPolicies",
-                "iam:ListPoliciesGrantingServiceAccess",
-                "iam:ListPolicyVersions",
-                "iam:ListRolePolicies",
-                "iam:ListRoles",
-                "iam:ListSAMLProviders",
-                "iam:ListSSHPublicKeys",
-                "iam:ListServerCertificates",
-                "iam:ListSigningCertificates",
-                "iam:ListUserPolicies",
-                "iam:ListUsers",
-                "iam:ListVirtualMFADevices"
-            ],
-            "Resource": [
-                "*"
-            ]
         }
     ]
 }
