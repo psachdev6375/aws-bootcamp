@@ -1,0 +1,95 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowAll",
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "DenyEC2EveryWhereExceptMumbai",
+            "Effect": "Deny",
+            "Action": [
+                "ec2:*"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringNotEquals": {
+                    "ec2:Region": [
+                        "ap-south-1"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "DenyAllButT2Micro",
+            "Effect": "Deny",
+            "Action": [
+                "ec2:RunInstances"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:InstanceType": [
+                        "m2.xlarge",
+                        "cg1.4xlarge",
+                        "c3.4xlarge",
+                        "c4.4xlarge",
+                        "d2.xlarge",
+                        "i2.xlarge",
+                        "m3.2xlarge",
+                        "r3.xlarge",
+                        "m4.2xlarge",
+                        "m2.2xlarge",
+                        "c3.8xlarge",
+                        "c4.8xlarge",
+                        "cc2.8xlarge",
+                        "g2.8xlarge",
+                        "hi1.4xlarge",
+                        "d2.2xlarge",
+                        "i2.2xlarge",
+                        "r3.2xlarge",
+                        "m4.4xlarge",
+                        "m2.4xlarge",
+                        "hs1.8xlarge",
+                        "d2.4xlarge",
+                        "i2.4xlarge",
+                        "r3.4xlarge",
+                        "m4.10xlarge",
+                        "cr1.8xlarge",
+                        "d2.8xlarge",
+                        "i2.8xlarge",
+                        "r3.8xlarge",
+                        "t2.small",
+                        "t2.medium",
+                        "t2.large",
+                        "t2.xlarge",
+                        "t2.2xlarge",
+                        "t2.nano"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "DenyRDSMultiAZAndNonT2Micro",
+            "Effect": "Deny",
+            "Action": "rds:CreateDBInstance",
+            "Resource": "*",
+            "Condition": {
+                "StringNotEquals": {
+                    "rds:DatabaseEngine": "mysql",
+                    "rds:DatabaseClass": [
+                        "db.t2.micro"
+                    ]
+                },
+                "Bool": {
+                    "rds:MultiAz": true
+                },
+                "NumericNotEquals": {
+                    "rds:Piops": "1"
+                }
+            }
+        }
+    ]
+}
