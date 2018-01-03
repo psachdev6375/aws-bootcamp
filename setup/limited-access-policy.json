@@ -2,14 +2,20 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "AllowEC2InMumbaiOnly",
+            "Sid": "AllowAll",
             "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "DenyEC2EveryWhereExceptMumbai",
+            "Effect": "Deny",
             "Action": [
                 "ec2:*"
             ],
             "Resource": "*",
             "Condition": {
-                "StringEquals": {
+                "StringNotEquals": {
                     "ec2:Region": [
                         "ap-south-1"
                     ]
@@ -17,12 +23,12 @@
             }
         },
         {
-            "Sid": "OnlyAllowCertainInstanceTypesToBeCreated",
+            "Sid": "DenyAllButT2Micro",
             "Effect": "Deny",
             "Action": [
                 "ec2:RunInstances"
             ],
-            "Resource": "arn:aws:ec2:ap-south-1:<ACCOUNT_ID>:instance/*",
+            "Resource": "*",
             "Condition": {
                 "StringEquals": {
                     "ec2:InstanceType": [
@@ -66,22 +72,7 @@
             }
         },
         {
-            "Sid": "AllowOtherServices",
-            "Action": [
-                "s3:*",
-                "sns:*",
-                "rds:*",
-                "cloudformation:*",
-                "vpc:*",
-                "elasticloadbalancing:*",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:GetMetricStatistics"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Sid": "AllowRDSOnlyMySQLAndT2Micro",
+            "Sid": "DenyRDSMultiAZAndNonT2Micro",
             "Effect": "Deny",
             "Action": "rds:CreateDBInstance",
             "Resource": "*",
@@ -99,60 +90,6 @@
                     "rds:Piops": "1"
                 }
             }
-        },
-        {
-            "Sid": "AllowVPCOnlyInMumbai",
-            "Action": "vpc:*",
-            "Effect": "Deny",
-            "Resource": "*",
-            "Condition": {
-                "StringNotEquals": {
-                    "ec2:Region": [
-                        "ap-south-1"
-                    ]
-                }
-            }
-        },
-        {
-            "Sid": "AllowIAMLimitedElements",
-            "Effect": "Allow",
-            "Action": [
-                "iam:AddRoleToInstanceProfile",
-                "iam:PassRole",
-                "iam:GetAccountSummary",
-                "iam:ChangePassword",
-                "iam:CreateInstanceProfile",
-                "iam:DeleteInstanceProfile",
-                "iam:GetInstanceProfile",
-                "iam:ListAccessKeys",
-                "iam:ListAccountAliases",
-                "iam:ListAttachedGroupPolicies",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListAttachedUserPolicies",
-                "iam:ListEntitiesForPolicy",
-                "iam:ListGroupPolicies",
-                "iam:ListGroups",
-                "iam:ListGroupsForUser",
-                "iam:ListInstanceProfiles",
-                "iam:ListInstanceProfilesForRole",
-                "iam:ListMFADevices",
-                "iam:ListOpenIDConnectProviders",
-                "iam:ListPolicies",
-                "iam:ListPoliciesGrantingServiceAccess",
-                "iam:ListPolicyVersions",
-                "iam:ListRolePolicies",
-                "iam:ListRoles",
-                "iam:ListSAMLProviders",
-                "iam:ListSSHPublicKeys",
-                "iam:ListServerCertificates",
-                "iam:ListSigningCertificates",
-                "iam:ListUserPolicies",
-                "iam:ListUsers",
-                "iam:ListVirtualMFADevices"
-            ],
-            "Resource": [
-                "*"
-            ]
         }
     ]
 }
