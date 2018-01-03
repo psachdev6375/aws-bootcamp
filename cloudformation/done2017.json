@@ -330,15 +330,7 @@
                 },
                 "SecurityGroupIds" : [{ "Ref" : "TomcatSecurityGroup" }],
                 "SubnetId" : { "Ref" : "PublicSubnet1a" },
-                "InstanceType" : "t2.micro",
-                "Tags" :[
-                    {
-                    "Key" : "Name", "Value" : "Done2017"
-                    },
-                    {
-                    "Key" : "purpose", "Value" : "awslearn"
-                    }
-                ]
+                "InstanceType" : { "Ref" : "InstanceType" }
             }
         },
         "DoneServer1B": {
@@ -390,15 +382,7 @@
                 },
                 "SecurityGroupIds" : [{ "Ref" : "TomcatSecurityGroup" }],
                 "SubnetId" : { "Ref" : "PublicSubnet1b" },
-                "InstanceType" : "t2.micro",
-                "Tags" :[
-                    {
-                    "Key" : "Name", "Value" : "Done2017"
-                    },
-                    {
-                    "Key" : "purpose", "Value" : "awslearn"
-                    }
-                ]
+                "InstanceType" : { "Ref" : "InstanceType" }
             }
         },
         "ElasticLoadBalancer": {
