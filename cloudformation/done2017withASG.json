@@ -1,0 +1,380 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description" : "This AWS CloudFormation Template installs a highly-available, scalable DONE2017 deployment using a multi-az Amazon RDS database instance for storage. **WARNING** This template creates an Amazon EC2 instance, an Application Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Parameters" : {
+        "DoneAMIID" : {
+            "Description" : "AMI to use. You must have this AMI in your region",
+            "Type" : "String",
+            "Default" : "ami-94d598fb",
+            "AllowedPattern" : "ami-[a-z0-9]+",
+            "ConstraintDescription" : "Must enter a valid AMI"
+        },
+        "KeyPairName" : {
+            "Description" : "Name of the key pair to use",
+            "Type" : "String",
+            "Default" : "puneetsachdev",
+            "AllowedPattern" : ".+",
+            "ConstraintDescription" : "Valid key pair name must be entered"
+        },
+        "InstanceType" : {
+            "Description" : "WebServer EC2 instance type",
+            "Type" : "String",
+            "Default" : "t2.micro",
+            "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "t2.large", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "c1.medium", "c1.xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge", "c4.8xlarge", "g2.2xlarge", "g2.8xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "d2.xlarge", "d2.2xlarge", "d2.4xlarge", "d2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "cr1.8xlarge", "cc2.8xlarge", "cg1.4xlarge"],
+            "ConstraintDescription" : "must be a valid EC2 instance type."
+        },
+        "DBClass" : {
+          "Description" : "Database instance class",
+          "Type" : "String",
+          "Default" : "db.t2.micro",
+          "AllowedValues" : [ "db.m4.large", "db.m4.xlarge", "db.m4.2xlarge", "db.m4.4xlarge", "db.m4.10xlarge", "db.r3.large", "db.r3.xlarge", "db.r3.2xlarge", "db.r3.4xlarge", "db.r3.8xlarge", "db.m2.xlarge", "db.m2.2xlarge", "db.m2.4xlarge", "db.cr1.8xlarge", "db.t2.micro", "db.t2.small", "db.t2.medium", "db.t2.large"],
+          "ConstraintDescription" : "must select a valid database instance type."
+        },
+        "DBName" : {
+          "Default": "capsuledb",
+          "Description" : "The DONE2017 database name",
+          "Type": "String",
+          "MinLength": "1",
+          "MaxLength": "64",
+          "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+          "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+        },
+
+        "DBUser" : {
+          "Default": "capsuledb",
+          "NoEcho": "true",
+          "Description" : "The DONE2017 database admin account username",
+          "Type": "String",
+          "MinLength": "1",
+          "MaxLength": "16",
+          "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+          "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+        },
+
+        "DBPassword" : {
+          "Default": "capsuledb",
+          "NoEcho": "true",
+          "Description" : "The DONE2017 database admin account password",
+          "Type": "String",
+          "MinLength": "8",
+          "MaxLength": "41",
+          "AllowedPattern" : "[a-zA-Z0-9]*",
+          "ConstraintDescription" : "must contain only alphanumeric characters."
+        },
+
+        "MultiAZDatabase": {
+          "Default": "false",
+          "Description" : "Create a Multi-AZ MySQL Amazon RDS database instance",
+          "Type": "String",
+          "AllowedValues" : [ "true", "false" ],
+          "ConstraintDescription" : "must be either true or false."
+        },
+        "DBAllocatedStorage" : {
+          "Default": "5",
+          "Description" : "The size of the database (Gb)",
+          "Type": "Number",
+          "MinValue": "5",
+          "MaxValue": "1024",
+          "ConstraintDescription" : "must be between 5 and 1024Gb."
+        }
+    },
+    "Resources": {
+        "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true", 
+                "InstanceTenancy": "default",
+                "Tags": [{
+                    "Key" : "Name", "Value" : "VPCPuneet"
+                }]
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway", 
+            "Properties": {
+                "Tags": [{
+                    "Key" : "Name", "Value" : "VPCPuneetInternetGateway"
+                }]
+            }
+        },
+        "VPCGatewayAttachment": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": { "Ref" : "VPC" }, 
+                "InternetGatewayId": { "Ref" : "InternetGateway"}
+            }
+        },
+        "PublicSubnet1a": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "a" ]]
+                },
+                "VpcId": { "Ref" : "VPC" }, 
+                "CidrBlock": "10.0.1.0/24",
+                "MapPublicIpOnLaunch": "true",
+                "Tags" :[{
+                    "Key" : "Name", "Value" : "Public-1A-10.0.1.0"
+                }]
+            } 
+        },
+        "PublicSubnet1b": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "b" ]]
+                },
+                "VpcId": { "Ref" : "VPC" }, 
+                "CidrBlock": "10.0.2.0/24",
+                "MapPublicIpOnLaunch": "true",
+                "Tags" :[{
+                    "Key" : "Name", "Value" : "Public-1B-10.0.2.0"
+                }]
+            } 
+        },
+        "PrivateSubnet1a": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "a" ]]
+                }, 
+                "VpcId": { "Ref" : "VPC" }, 
+                "CidrBlock": "10.0.3.0/24",
+                "MapPublicIpOnLaunch": "false",
+                "Tags" :[{
+                    "Key" : "Name", "Value" : "Private-1A-10.0.3.0"
+                }]
+            } 
+        },
+        "PrivateSubnet1b": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": { 
+                    "Fn::Join" : [ "", [ {"Ref" : "AWS::Region" }, "b" ]]
+                },
+                "VpcId": { "Ref" : "VPC" }, 
+                "CidrBlock": "10.0.4.0/24",
+                "MapPublicIpOnLaunch": "false",
+                "Tags" :[{
+                    "Key" : "Name", "Value" : "Private-1B-10.0.4.0"
+                }]
+            } 
+        },
+        "RouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": { "Ref" : "VPC" }, 
+                "Tags" :[{
+                    "Key" : "Name", "Value" : "PuneetVPCPublicRouteTable"
+                }]
+            }
+        },
+        "InternetRoute": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": "InternetGateway",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": { "Ref" : "InternetGateway" }, 
+                "RouteTableId": { "Ref" : "RouteTable" }
+            }
+        },
+        "SubnetPublicRouteAssociation1A": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation", 
+            "Properties": {
+                "RouteTableId": { "Ref": "RouteTable" },
+                "SubnetId": { "Ref": "PublicSubnet1a" }
+            }
+        },
+        "SubnetPublicRouteAssociation1B": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation", 
+            "Properties": {
+                "RouteTableId": { "Ref": "RouteTable" },
+                "SubnetId": { "Ref": "PublicSubnet1b" }
+            }
+        },
+        "SecurityGroupWebDMZ": {
+            "Type": "AWS::EC2::SecurityGroup", 
+            "Properties": {
+                "GroupName": "WebDMZ-SG",
+                "GroupDescription": "Security Group for servers in the Web DMZ. SSH, HTTP, HTTPS allowed in",
+                "VpcId": { "Ref": "VPC" },
+                "Tags": [{
+                    "Key" : "Name", "Value" : "WebDMZ-SG-PuneetVPC"
+                }],
+                "SecurityGroupIngress": [{
+                    "IpProtocol": "tcp",
+                    "FromPort": "80", 
+                    "ToPort": "80", 
+                    "CidrIp": "0.0.0.0/0"
+                },
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": "443", 
+                    "ToPort": "443", 
+                    "CidrIp": "0.0.0.0/0"
+                }]
+            }
+        },
+        "TomcatSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup", 
+            "Properties": {
+                "GroupName": "Tomcat-SG",
+                "GroupDescription": "Security group for the Tomcat Web Servers running DONE2017 services. 8080 Allowed",
+                "VpcId": { "Ref": "VPC" },
+                "Tags": [{
+                    "Key" : "Name", "Value" : "Tomcat-SG-PuneetVPC"
+                }],
+                "SecurityGroupIngress": [{
+                    "IpProtocol": "tcp",
+                    "FromPort": "8080", 
+                    "ToPort": "8080", 
+                    "SourceSecurityGroupId": { "Ref": "SecurityGroupWebDMZ" }
+                },
+                {
+                    "IpProtocol": "tcp",
+                    "FromPort": "22", 
+                    "ToPort": "22", 
+                    "CidrIp": "0.0.0.0/0"
+                }
+              ]
+            }
+        },
+        "SecurityGroupMySQL": {
+            "Type": "AWS::EC2::SecurityGroup", 
+            "Properties": {
+                "GroupName": "RDS-MySQL-SG",
+                "GroupDescription": "Security Group for MySQL servers in the Private Subnet. Only ports 22 and 3306 allowed in from public SG",
+                "VpcId": { "Ref": "VPC" },
+                "Tags": [{
+                    "Key" : "Name", "Value" : "MySQL-Private-SG-PuneetVPC"
+                }],
+                "SecurityGroupIngress": [{
+                    "IpProtocol": "tcp",
+                    "FromPort": "3306", 
+                    "ToPort": "3306", 
+                    "SourceSecurityGroupId": { "Ref": "TomcatSecurityGroup" }
+                }]
+            }
+        },
+        "dbSubnetGroup" : {
+            "Type" : "AWS::RDS::DBSubnetGroup",
+            "Properties" : {
+                "DBSubnetGroupDescription" : "Availability Zones for RDS DB",
+                "SubnetIds" : [ { "Ref" : "PrivateSubnet1a" },
+                    { "Ref" : "PrivateSubnet1b" } ]
+            }
+        },
+        "DBInstance" : {
+          "Type": "AWS::RDS::DBInstance",
+          "Properties": {
+            "DBName"            : { "Ref" : "DBName" },
+            "Engine"            : "MySQL",
+            "MultiAZ"           : { "Ref": "MultiAZDatabase" },
+            "MasterUsername"    : { "Ref" : "DBUser" },
+            "MasterUserPassword": { "Ref" : "DBPassword" },
+            "DBInstanceClass"   : { "Ref" : "DBClass" },
+            "AllocatedStorage"  : { "Ref" : "DBAllocatedStorage" },
+            "VPCSecurityGroups" : [{ "Fn::GetAtt": [ "SecurityGroupMySQL", "GroupId" ]}],
+            "DBSubnetGroupName" : { "Ref": "dbSubnetGroup" },
+            "PubliclyAccessible": "false"
+          }
+        },
+        "ElasticLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "DependsOn": "VPCGatewayAttachment",
+            "Properties": {
+                "Subnets": [{"Ref": "PublicSubnet1a"},{"Ref": "PublicSubnet1b"}],
+                "Listeners" : [ {
+                  "LoadBalancerPort" : "80",
+                  "InstancePort" : "8080",
+                  "Protocol" : "HTTP"
+                } ],
+                "SecurityGroups" : [ { "Ref" : "SecurityGroupWebDMZ" } ],
+                "HealthCheck" : {
+                  "Target" : {
+                    "Fn::Join" : [ "", [ "HTTP:", 8080, "/swagger-ui.html" ] ]
+                  },
+                  "HealthyThreshold" : "2",
+                  "UnhealthyThreshold" : "2",
+                  "Interval" : "5",
+                  "Timeout" : "2"
+                },
+                "Scheme": "internet-facing",
+
+            }
+        },
+        "DONELaunchConfiguration": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "ImageId" : {"Ref": "DoneAMIID"},
+                "KeyName" : {"Ref": "KeyPairName"},
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": ["", [
+                                "#!/bin/bash -xe\n",
+                                "yum install -y aws-cfn-bootstrap\n",
+                                "# Set environment variables\n",
+                                "echo export RDS_HOST=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]},
+                                ">> /etc/profile\n",
+                                "echo export RDS_PORT=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]},
+                                ">> /etc/profile\n",
+                                "echo export RDS_USER=",
+                                { "Ref" : "DBUser" },
+                                ">> /etc/profile\n",
+                                "echo export RDS_PASSWORD=",
+                                { "Ref" : "DBPassword" },
+                                ">> /etc/profile\n",
+                                "echo export RDS_DB=",
+                                { "Ref" : "DBName" },
+                                ">> /etc/profile\n",
+                                "export RDS_HOST=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]},
+                                "\n",
+                                "export RDS_PORT=",
+                                { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]},
+                                "\n",
+                                "export RDS_USER=",
+                                { "Ref" : "DBUser" },
+                                "\n",
+                                "export RDS_PASSWORD=",
+                                { "Ref" : "DBPassword" },
+                                "\n",
+                                "export RDS_DB=",
+                                { "Ref" : "DBName" },
+                                "\n",
+                                "nohup java -jar /home/ec2-user/devcapsule/services/target/devcapsule-spring-1.0.jar > /home/ec2-user/devcapsule.log &\n"
+                            ]
+                        ]
+                    }
+                },
+                "SecurityGroups" : [{ "Ref" : "TomcatSecurityGroup" }],
+                "InstanceType" : { "Ref" : "InstanceType" }
+            }
+        },
+        "DONEAutoScalingGroup": {
+            "Type" : "AWS::AutoScaling::AutoScalingGroup",
+            "Properties" : {
+                "AvailabilityZones" : { "Fn::GetAZs" : { "Ref" : "AWS::Region" } },
+                "LaunchConfigurationName" : { "Ref" : "DONELaunchConfiguration" },
+                "MinSize" : "2",
+                "MaxSize" : "4",
+                "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
+                "VPCZoneIdentifier" : [{"Ref": "PublicSubnet1a"},{"Ref": "PublicSubnet1b"}]
+            }
+        }
+    },
+    "Outputs" : {
+        "WebsiteURL" : {
+          "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}, "/swagger-ui.html" ]]},
+          "Description" : "Done service url"
+        },
+        "DBEndpoint" : {
+          "Value" : { "Fn::Join" : ["", [{ "Fn::GetAtt" : [ "DBInstance", "Endpoint.Address" ]}, ":", { "Fn::GetAtt" : [ "DBInstance", "Endpoint.Port" ]} ]]},
+          "Description" : "Done DB Endpoint"
+        }
+      }
+}
