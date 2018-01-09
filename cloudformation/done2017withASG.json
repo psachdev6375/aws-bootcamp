@@ -371,7 +371,6 @@
         "DONEAutoScalingGroup": {
             "Type" : "AWS::AutoScaling::AutoScalingGroup",
             "Properties" : {
-                "AvailabilityZones" : { "Fn::GetAZs" : { "Ref" : "AWS::Region" } },
                 "LaunchConfigurationName" : { "Ref" : "DONELaunchConfiguration" },
                 "MinSize" : "1",
                 "MaxSize" : "5",
