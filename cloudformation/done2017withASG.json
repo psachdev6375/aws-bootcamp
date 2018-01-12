@@ -83,6 +83,18 @@
           "Default": "puneet.sachdev@gmail.com",
           "AllowedPattern": "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)",
           "ConstraintDescription": "must be a valid email address."
+        },
+        "MinInstances": {
+          "Description": "Minimum number of instances in the auto scaling group. ",
+          "Type": "Number",
+          "Default": "1",
+          "ConstraintDescription": "Mininstances must be provided."
+        },
+		"MaxInstances": {
+          "Description": "Maximum number of instances in the auto scaling group. ",
+          "Type": "Number",
+          "Default": "2",
+          "ConstraintDescription": "Maxinstances must be provided."
         }
     },
     "Resources": {
@@ -308,8 +320,7 @@
                   "Interval" : "5",
                   "Timeout" : "2"
                 },
-                "Scheme": "internet-facing",
-
+                "Scheme": "internet-facing"
             }
         },
         "DONELaunchConfiguration": {
@@ -372,8 +383,8 @@
             "Type" : "AWS::AutoScaling::AutoScalingGroup",
             "Properties" : {
                 "LaunchConfigurationName" : { "Ref" : "DONELaunchConfiguration" },
-                "MinSize" : "1",
-                "MaxSize" : "5",
+                "MinSize" : { "Ref" : "MinInstances" },
+                "MaxSize" : { "Ref" : "MaxInstances" },
                 "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
                 "VPCZoneIdentifier" : [{"Ref": "PublicSubnet1a"},{"Ref": "PublicSubnet1b"}],
                 "NotificationConfiguration" : {
