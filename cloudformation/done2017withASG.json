@@ -93,8 +93,14 @@
 		"MaxInstances": {
           "Description": "Maximum number of instances in the auto scaling group. ",
           "Type": "Number",
-          "Default": "2",
+          "Default": "5",
           "ConstraintDescription": "Maxinstances must be provided."
+        },
+        "DesiredInstances": {
+          "Description": "Desired number of instances in the auto scaling group. ",
+          "Type": "Number",
+          "Default": "1",
+          "ConstraintDescription": "Desired Instances must be provided."
         }
     },
     "Resources": {
@@ -385,6 +391,7 @@
                 "LaunchConfigurationName" : { "Ref" : "DONELaunchConfiguration" },
                 "MinSize" : { "Ref" : "MinInstances" },
                 "MaxSize" : { "Ref" : "MaxInstances" },
+                "DesiredCapacity": { "Ref" : "DesiredInstances" },
                 "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ],
                 "VPCZoneIdentifier" : [{"Ref": "PublicSubnet1a"},{"Ref": "PublicSubnet1b"}],
                 "NotificationConfiguration" : {
@@ -442,7 +449,7 @@
                 "Period": "300",
                 "EvaluationPeriods": "2",
                 "Threshold": "70",
-                "AlarmActions": [ { "Ref": "DONEServerScaleUpPolicy" } ],
+                "AlarmActions": [ { "Ref": "DONEServerScaleDownPolicy" } ],
                 "Dimensions": [{
                     "Name": "AutoScalingGroupName",
                     "Value": { "Ref": "DONEAutoScalingGroup" }
