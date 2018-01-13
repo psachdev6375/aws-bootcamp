@@ -5,7 +5,7 @@
         "DoneAMIID" : {
             "Description" : "AMI to use. You must have this AMI in your region",
             "Type" : "String",
-            "Default" : "ami-94d598fb",
+            "Default" : "ami-1d82d572",
             "AllowedPattern" : "ami-[a-z0-9]+",
             "ConstraintDescription" : "Must enter a valid AMI"
         },
